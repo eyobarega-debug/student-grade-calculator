@@ -26,6 +26,7 @@ const statusPill = document.getElementById("status-pill");
 const performanceMsg = document.getElementById("performance-msg");
 const errorList = document.getElementById("error-list");
 const resetBtn = document.getElementById("reset-btn");
+const copyBtn = document.getElementById("copy-btn");
 const printBtn = document.getElementById("print-btn");
 const themeToggleBtn = document.getElementById("theme-toggle");
 const themeIcon = document.getElementById("theme-icon");
@@ -446,6 +447,75 @@ function applyTheme(theme) {
   themeLabel.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
   localStorage.setItem(THEME_KEY, theme);
 }
+// Copy the latest report card summary to the clipboard.
+async function copyResultSummary() {
+  const subjectEntries = getSubjectEntries();
+  const student = studentName.value.trim() || "Unknown Student";
+  const id = studentId.value.trim() || "No ID";
+  const marks = subjectEntries.map((entry) => Number(entry.marks) || 0);
+  const total = marks.reduce((sum, mark) => sum + mark, 0);
+  const average = marks.length > 0 ? total / marks.length : 0;
+  const percentage = marks.length > 0 ? (total / (marks.length * 100)) * 100 : 0;
+  const grade = getGrade(percentage);
+  const status = getStatus(percentage);
+
+  const lines = [
+    `Student: ${student}`,
+    `ID: ${id}`,
+    `Total: ${total}`,
+    `Average: ${average.toFixed(1)}`,
+    `Percentage: ${percentage.toFixed(1)}%`,
+    `Grade: ${grade}`,
+    `Status: ${status}`,
+    "",
+    "Subjects:",
+  ];
+
+  subjectEntries.forEach((entry, index) => {
+    const credit = Number(entry.credit) || 0;
+    const mark = Number(entry.marks) || 0;
+    lines.push(
+      `- ${entry.name || `Subject ${index + 1}`}: ${mark} marks (${credit} Cr Hr), Grade ${getGrade(mark)}`
+    );
+  });
+
+  const text = lines.join("\n");
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      const tempArea = document.createElement("textarea");
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      document.execCommand("copy");
+      tempArea.remove();
+    }
+
+    const originalLabel = copyBtn ? copyBtn.innerHTML : "";
+    if (copyBtn) {
+      copyBtn.innerHTML = '<span aria-hidden="true">✅</span> Copied!';
+      copyBtn.disabled = true;
+    }
+
+    window.setTimeout(() => {
+      if (copyBtn) {
+        copyBtn.innerHTML = originalLabel;
+        copyBtn.disabled = false;
+      }
+    }, 1500);
+  } catch (error) {
+    console.warn("Could not copy summary:", error);
+    if (copyBtn) {
+      copyBtn.innerHTML = '<span aria-hidden="true">⚠️</span> Copy Failed';
+      window.setTimeout(() => {
+        copyBtn.innerHTML = '<span aria-hidden="true">📋</span> Copy Summary';
+      }, 1500);
+    }
+  }
+}
+
 // to Print
 function printResult(){
 
@@ -493,6 +563,7 @@ safeOn(form, "submit", function (event) {
 }, "grade-form");
 
 safeOn(resetBtn, "click", resetForm, "reset-btn");
+safeOn(copyBtn, "click", copyResultSummary, "copy-btn");
 safeOn(printBtn, "click", printResult, "print-btn");
 safeOn(themeToggleBtn, "click", toggleTheme, "theme-toggle");
 

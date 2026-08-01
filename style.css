@@ -281,6 +281,12 @@ header p{
     background: linear-gradient(135deg, #219150, #27ae60);
 }
 
+.btn:disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .btn-ghost {
     background: #f4f6f9;
     color: var(--primary);
@@ -636,5 +642,4 @@ footer{
         line-height:70px;
         font-size:24px;
     }
-
 }
