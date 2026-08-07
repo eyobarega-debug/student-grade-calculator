@@ -17,6 +17,7 @@ const statTotal = document.getElementById("stat-total");
 const statTotalUnit = document.getElementById("stat-total-unit");
 const statAverage = document.getElementById("stat-average");
 const statPercentage = document.getElementById("stat-percentage");
+const statCredits = document.getElementById("stat-credits");
 const statGpa = document.getElementById("stat-gpa");
 const progressFill = document.getElementById("progress-fill");
 const progressCaption = document.getElementById("progress-caption");
@@ -403,6 +404,7 @@ function calculateResult() {
   statTotalUnit.textContent = `/ ${getMarkInputs().length * 100}`;
   statAverage.textContent = average.toFixed(1);
   statPercentage.textContent = `${percentage.toFixed(1)}%`;
+  statCredits.textContent = totalCredits;
   statGpa.textContent = studentGpa.toFixed(2);
   progressFill.style.width = `${percentage}%`;
   progressCaption.textContent = `${percentage.toFixed(1)}% of total marks (${total} / ${getMarkInputs().length * 100})`;
@@ -433,6 +435,7 @@ function resetForm(){
     progressFill.style.width = "0%";
     progressCaption.textContent = "0% of total marks";
     statTotalUnit.textContent = "/ 500";
+    statCredits.textContent = "0";
     statGpa.textContent = "0.00";
     localStorage.removeItem(STORAGE_KEY);
     resetSubjectFields();
